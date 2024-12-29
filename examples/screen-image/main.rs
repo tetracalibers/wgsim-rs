@@ -22,7 +22,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
   let initial = setup();
 
-  let mut app: App<State> = App::new("screen-fit-contain-image", initial);
+  let mut app: App<State> = App::new("screen-image", initial);
   app.run()?;
 
   Ok(())
