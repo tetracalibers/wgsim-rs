@@ -4,11 +4,6 @@ use winit::event::WindowEvent;
 
 use crate::ctx::{DrawingContext, Size};
 
-pub enum RenderTarget<'a> {
-  Surface(&'a wgpu::Surface<'a>),
-  Texture(&'a wgpu::Texture),
-}
-
 #[allow(opaque_hidden_inferred_bound, unused_variables)]
 pub trait Render<'a> {
   type Initial;
@@ -29,9 +24,9 @@ pub trait Render<'a> {
   fn draw(
     &mut self,
     encoder: &mut wgpu::CommandEncoder,
-    target: RenderTarget,
+    target: &wgpu::TextureView,
     sample_count: u32,
-  ) -> Result<Option<wgpu::SurfaceTexture>, wgpu::SurfaceError>;
+  ) -> Result<(), wgpu::SurfaceError>;
   fn submit(
     &self,
     queue: &wgpu::Queue,

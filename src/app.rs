@@ -10,9 +10,7 @@ use winit::{
 };
 
 use crate::{
-  ctx::DrawingContext,
-  render::{Render, RenderTarget},
-  surface_cfg::SurfaceConfigBuilder,
+  ctx::DrawingContext, render::Render, surface_cfg::SurfaceConfigBuilder,
 };
 
 pub struct App<'a, R>
@@ -181,14 +179,28 @@ impl<'a, R: Render<'a>> ApplicationHandler for App<'a, R> {
             label: None,
           });
 
-        let result = renderer.draw(
-          &mut command_encoder,
-          RenderTarget::Surface(&surface),
-          self.sample_count,
-        );
+        let frame = surface.get_current_texture();
 
-        match result {
-          Ok(frame) => renderer.submit(&ctx.queue, command_encoder, frame),
+        match frame {
+          Ok(frame) => {
+            let view = frame
+              .texture
+              .create_view(&wgpu::TextureViewDescriptor::default());
+
+            let result =
+              renderer.draw(&mut command_encoder, &view, self.sample_count);
+
+            match result {
+              Ok(_) => {
+                renderer.submit(&ctx.queue, command_encoder, Some(frame))
+              }
+              Err(wgpu::SurfaceError::Lost | wgpu::SurfaceError::Outdated) => {
+                renderer.resize(ctx, *ctx.size())
+              }
+              Err(wgpu::SurfaceError::OutOfMemory) => event_loop.exit(),
+              Err(e) => eprintln!("{:?}", e),
+            }
+          }
           Err(wgpu::SurfaceError::Lost | wgpu::SurfaceError::Outdated) => {
             renderer.resize(ctx, *ctx.size())
           }
