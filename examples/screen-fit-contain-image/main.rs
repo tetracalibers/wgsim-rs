@@ -1,5 +1,7 @@
 use std::error::Error;
 
+use image::GenericImageView;
+
 use wgsim::app::App;
 use wgsim::ctx::DrawingContext;
 use wgsim::render::Render;
@@ -16,10 +18,17 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn setup() -> Initial {
-  Initial {}
+  let img_bytes = include_bytes!("../assets/img/stained-glass_w600.png");
+  let image = image::load_from_memory(img_bytes).unwrap();
+  let image_size = image.dimensions();
+
+  Initial { image, image_size }
 }
 
-struct Initial {}
+struct Initial {
+  image: image::DynamicImage,
+  image_size: (u32, u32),
+}
 
 struct State {}
 
