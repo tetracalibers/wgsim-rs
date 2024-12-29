@@ -2,10 +2,8 @@ use std::error::Error;
 
 use indicatif::{ProgressBar, ProgressStyle};
 
-use crate::{
-  ctx::{DrawingContext, Size},
-  render::Render,
-};
+use crate::primitive::Size;
+use crate::{ctx::DrawingContext, render::Render};
 
 pub struct Gif<'a, R>
 where

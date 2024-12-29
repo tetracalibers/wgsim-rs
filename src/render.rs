@@ -2,7 +2,8 @@ use std::future::Future;
 
 use winit::event::WindowEvent;
 
-use crate::ctx::{DrawingContext, Size};
+use crate::ctx::DrawingContext;
+use crate::primitive::Size;
 
 #[allow(opaque_hidden_inferred_bound, unused_variables)]
 pub trait Render<'a> {

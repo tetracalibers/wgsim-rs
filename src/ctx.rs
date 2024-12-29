@@ -1,29 +1,9 @@
 use std::sync::Arc;
 
-use winit::{dpi::PhysicalSize, window::Window};
+use winit::window::Window;
 
+use crate::primitive::Size;
 use crate::surface_cfg::SurfaceConfigBuilder;
-
-#[derive(Debug, Clone, Copy)]
-pub struct Size {
-  pub width: u32,
-  pub height: u32,
-}
-
-impl Size {
-  pub fn new(width: u32, height: u32) -> Self {
-    Self { width, height }
-  }
-}
-
-impl Into<Size> for PhysicalSize<u32> {
-  fn into(self) -> Size {
-    Size {
-      width: self.width,
-      height: self.height,
-    }
-  }
-}
 
 #[derive(Debug)]
 pub struct SurfaceDrawingContext<'a> {
