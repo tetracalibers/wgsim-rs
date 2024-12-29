@@ -18,7 +18,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn setup() -> Initial {
-  let img_bytes = include_bytes!("../assets/img/stained-glass_w600.png");
+  let img_bytes = include_bytes!("../assets/img/pastel-tomixy.png");
   let image = image::load_from_memory(img_bytes).unwrap();
   let image_size = image.dimensions();
 
