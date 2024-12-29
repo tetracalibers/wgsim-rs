@@ -1,4 +1,5 @@
 use std::error::Error;
+use std::time::Duration;
 
 use wgpu::util::DeviceExt;
 
@@ -54,6 +55,7 @@ struct State {
   render_result_bind_group: wgpu::BindGroup,
   render_result_pipeline: wgpu::RenderPipeline,
 
+  resolution_uniform_buffer: wgpu::Buffer,
   need_resolution_update: bool,
 }
 
@@ -158,6 +160,7 @@ impl<'a> Render<'a> for State {
       render_result_bind_group,
       render_result_pipeline,
 
+      resolution_uniform_buffer,
       need_resolution_update: false,
     }
   }
@@ -166,6 +169,21 @@ impl<'a> Render<'a> for State {
     if size.width > 0 && size.height > 0 {
       ctx.resize(size);
       self.need_resolution_update = true;
+    }
+  }
+
+  fn update(&mut self, ctx: &DrawingContext, _dt: Duration) {
+    if self.need_resolution_update {
+      let resolution = ctx.resolution();
+      ctx.queue.write_buffer(
+        &self.resolution_uniform_buffer,
+        0,
+        bytemuck::cast_slice(&[
+          resolution.width as f32,
+          resolution.height as f32,
+        ]),
+      );
+      self.need_resolution_update = false;
     }
   }
 
