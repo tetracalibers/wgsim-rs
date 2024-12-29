@@ -1,5 +1,7 @@
 use std::error::Error;
 
+use wgpu::util::DeviceExt;
+
 use image::GenericImageView;
 
 use wgsim::app::App;
@@ -15,6 +17,12 @@ const TEXTURE_BINDING_TYPE: wgpu::BindingType = wgpu::BindingType::Texture {
   sample_type: wgpu::TextureSampleType::Float { filterable: true },
   view_dimension: wgpu::TextureViewDimension::D2,
   multisampled: false,
+};
+
+const UNIFORM_BINDING_TYPE: wgpu::BindingType = wgpu::BindingType::Buffer {
+  ty: wgpu::BufferBindingType::Uniform,
+  has_dynamic_offset: false,
+  min_binding_size: None,
 };
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -92,10 +100,30 @@ impl<'a> Render<'a> for State {
       ..Default::default()
     });
 
+    // リサイズのたびに更新する必要がある
+    let resolution = ctx.resolution();
+    let resolution_uniform_buffer =
+      ctx.device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        label: Some("resolution uniform buffer"),
+        contents: bytemuck::cast_slice(&[
+          resolution.width as f32, // シェーダ側での型に合わせるため、f32にキャスト
+          resolution.height as f32,
+        ]),
+        usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+      });
+
     let render_result_bind_group_layout = util::create_bind_group_layout(
       &ctx.device,
-      &[SAMPLER_BINDING_TYPE, TEXTURE_BINDING_TYPE],
-      &[wgpu::ShaderStages::FRAGMENT, wgpu::ShaderStages::FRAGMENT],
+      &[
+        SAMPLER_BINDING_TYPE,
+        TEXTURE_BINDING_TYPE,
+        UNIFORM_BINDING_TYPE,
+      ],
+      &[
+        wgpu::ShaderStages::FRAGMENT,
+        wgpu::ShaderStages::VERTEX_FRAGMENT,
+        wgpu::ShaderStages::VERTEX,
+      ],
     );
 
     let render_result_bind_group = util::create_bind_group(
@@ -106,6 +134,7 @@ impl<'a> Render<'a> for State {
         wgpu::BindingResource::TextureView(
           &src_texture.create_view(&wgpu::TextureViewDescriptor::default()),
         ),
+        resolution_uniform_buffer.as_entire_binding(),
       ],
     );
 
