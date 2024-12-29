@@ -12,5 +12,6 @@ wgpu              = "23.0.1"
 winit             = "0.30.7"
 
 [dev-dependencies]
+bytemuck   = "1.21.0"
 env_logger = "0.11.6"
 image      = "0.25.5"
