@@ -7,6 +7,7 @@ use image::GenericImageView;
 use wgsim::app::App;
 use wgsim::ctx::DrawingContext;
 use wgsim::ppl::RenderPipelineBuilder;
+use wgsim::primitive::Size;
 use wgsim::render::Render;
 use wgsim::util;
 
@@ -52,6 +53,8 @@ struct Initial {
 struct State {
   render_result_bind_group: wgpu::BindGroup,
   render_result_pipeline: wgpu::RenderPipeline,
+
+  need_resolution_update: bool,
 }
 
 impl<'a> Render<'a> for State {
@@ -154,6 +157,15 @@ impl<'a> Render<'a> for State {
     Self {
       render_result_bind_group,
       render_result_pipeline,
+
+      need_resolution_update: false,
+    }
+  }
+
+  fn resize(&mut self, ctx: &mut DrawingContext, size: Size) {
+    if size.width > 0 && size.height > 0 {
+      ctx.resize(size);
+      self.need_resolution_update = true;
     }
   }
 
